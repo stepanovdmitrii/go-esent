@@ -6,6 +6,7 @@ import (
 	"unsafe"
 
 	"github.com/stepanovdmitrii/go-esent/internal/pkg/esent"
+	"github.com/stepanovdmitrii/go-esent/pkg/config"
 )
 
 // Instance Instance of the database engine for use in a single process
@@ -40,11 +41,17 @@ func (i *Instance) Init() error {
 	return esent.Syscall(esent.JetInit, uintptr(unsafe.Pointer(&i.instancePointer)))
 }
 
+// Term Initiates the shutdown of an instance
+// https://docs.microsoft.com/en-us/windows/win32/extensible-storage-engine/jetterm-function
+func (i *Instance) Term() error {
+	return esent.Syscall(esent.JetTerm, i.instancePointer)
+}
+
 // SetSystemParameter Set configuration setting of the database engine
 // https://docs.microsoft.com/en-us/windows/win32/extensible-storage-engine/jetsetsystemparameter-function
-//func (i *Instance) SetSystemParameter(parameter *config.SystemParameter) error {
-//	if parameter == nil {
-//		return fmt.Errorf("parameter must be specified")
-//	}
-//	return dll.Syscall(dll.JetSetSystemParameter, uintptr(unsafe.Pointer(&i.instancePointer)), 0, uintptr(82), uintptr(2147483648), uintptr(0))
-//}
+func (i *Instance) SetSystemParameter(parameter *config.SystemParameter) error {
+	if parameter == nil {
+		return fmt.Errorf("parameter must be specified")
+	}
+	return esent.Syscall(esent.JetSetSystemParameter, uintptr(unsafe.Pointer(&i.instancePointer)), 0, parameter.Id, parameter.IntPtr, parameter.StringPtr)
+}
