@@ -1,13 +1,12 @@
-package goesent
+package errors
 
 import (
 	"fmt"
-	"syscall"
 )
 
 // EsentError Esent engine error
 type EsentError struct {
-	Code    uintptr
+	Code    ErrorCode
 	Message string
 }
 
@@ -17,11 +16,4 @@ func (e *EsentError) Error() string {
 		return ""
 	}
 	return fmt.Sprintf("code: %d, message: %s", e.Code, e.Message)
-}
-
-func handleEsentErr(err syscall.Errno) error {
-	if err >= 0 {
-		return nil
-	}
-
 }

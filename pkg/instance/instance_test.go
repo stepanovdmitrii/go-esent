@@ -1,4 +1,4 @@
-package goesent
+package instance
 
 import (
 	"testing"

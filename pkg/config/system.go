@@ -1,4 +1,4 @@
-package goesent
+package config
 
 import (
 	"fmt"
