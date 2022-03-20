@@ -1,4 +1,4 @@
-package errors
+package esent
 
 import (
 	"github.com/stepanovdmitrii/go-esent/pkg/errors"

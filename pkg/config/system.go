@@ -8,17 +8,17 @@ import (
 
 // SystemParameter System parameter
 type SystemParameter struct {
-	id        uint
-	intPtr    uintptr
-	stringPtr uintptr
+	Id        uint
+	IntPtr    uintptr
+	StringPtr uintptr
 }
 
 // SysParameterAlternateDatabaseRecoveryPath
 // JET_paramAlternateDatabaseRecoveryPath
 func SysParameterAlternateDatabaseRecoveryPath(path string) (*SystemParameter, error) {
-	if path == "" || len(path) > 246 {
-		return nil, fmt.Errorf("path must be non-empty string max 246 symbols")
-	}
+	//if path == "" || len(path) > 246 {
+	//	return nil, fmt.Errorf("path must be non-empty string max 246 symbols")
+	//}
 	return sysParameterString(113, path)
 }
 
@@ -55,8 +55,8 @@ func sysParameterString(id uint, str string) (*SystemParameter, error) {
 		return nil, fmt.Errorf("failed to create byte array from string: %w", err)
 	}
 	return &SystemParameter{
-		id:        id,
-		stringPtr: uintptr(unsafe.Pointer(ptr)),
+		Id:        id,
+		StringPtr: uintptr(unsafe.Pointer(ptr)),
 	}, nil
 }
 
@@ -66,14 +66,14 @@ func sysParameterBool(id uint, value bool) (*SystemParameter, error) {
 		valuePtr = 1
 	}
 	return &SystemParameter{
-		id:     id,
-		intPtr: valuePtr,
+		Id:     id,
+		IntPtr: valuePtr,
 	}, nil
 }
 
 func sysParameterInt32(id uint, value int32) (*SystemParameter, error) {
 	return &SystemParameter{
-		id:     id,
-		intPtr: uintptr(value),
+		Id:     id,
+		IntPtr: uintptr(value),
 	}, nil
 }
