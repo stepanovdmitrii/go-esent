@@ -1,4 +1,4 @@
-package instance
+package esent
 
 import (
 	"github.com/stepanovdmitrii/go-esent/pkg/config"

@@ -5,9 +5,21 @@ import "syscall"
 var (
 	esentDll = syscall.MustLoadDLL("esent.dll")
 
-	JetCreateInstance, _      = syscall.GetProcAddress(esentDll.Handle, "JetCreateInstance")
-	JetInit, _                = syscall.GetProcAddress(esentDll.Handle, "JetInit")
-	JetStopServiceInstance, _ = syscall.GetProcAddress(esentDll.Handle, "JetStopServiceInstance")
-	JetTerm, _                = syscall.GetProcAddress(esentDll.Handle, "JetTerm")
-	JetSetSystemParameter, _  = syscall.GetProcAddress(esentDll.Handle, "JetSetSystemParameter")
+	JetCreateInstance      = mustGetProcAddress("JetCreateInstance")
+	JetInit                = mustGetProcAddress("JetInit")
+	JetStopServiceInstance = mustGetProcAddress("JetStopServiceInstance")
+	JetTerm                = mustGetProcAddress("JetTerm")
+	JetSetSystemParameter  = mustGetProcAddress("JetSetSystemParameter")
+	JetBeginSession        = mustGetProcAddress("JetBeginSession")
+	JetCreateDatabase      = mustGetProcAddress("JetCreateDatabase")
+	JetEndSession          = mustGetProcAddress("JetEndSession")
+	JetCloseDatabase       = mustGetProcAddress("JetCloseDatabase")
 )
+
+func mustGetProcAddress(proc string) uintptr {
+	handle, err := syscall.GetProcAddress(esentDll.Handle, proc)
+	if err != nil {
+		panic(err)
+	}
+	return handle
+}

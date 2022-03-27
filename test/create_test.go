@@ -6,8 +6,13 @@ import (
 	"testing"
 
 	"github.com/stepanovdmitrii/go-esent/pkg/config"
-	"github.com/stepanovdmitrii/go-esent/pkg/instance"
+	"github.com/stepanovdmitrii/go-esent/pkg/esent"
 	"github.com/stretchr/testify/assert"
+)
+
+const (
+	testDataDir      string = "testdata"
+	testDatabaseName string = "testDatabase.edb"
 )
 
 func Test_Create(t *testing.T) {
@@ -21,7 +26,7 @@ func Test_Create(t *testing.T) {
 		}
 	}()
 
-	inst, err := instance.CreateInstance("createInstance_test")
+	inst, err := esent.CreateInstance("createInstance_test")
 	if err != nil {
 		assert.FailNow(t, "failed to create esent instance", err.Error())
 	}
@@ -42,18 +47,20 @@ func Test_Create(t *testing.T) {
 	systemPath := filepath.Join(testDataDir, "system")
 	logsPath := filepath.Join(testDataDir, "logs")
 	tempPath := filepath.Join(testDataDir, "temp")
+	databaseDirPath := filepath.Join(testDataDir, "database")
+	databaseFilePath := filepath.Join(databaseDirPath, testDatabaseName)
 	baseName := "goo"
 
 	err = inst.SetParameters(
-		instance.SysParameterCreatorBool(config.SysParameterCreatePathIfNotExist, true),
-		instance.SysParameterCreatorBool(config.SysParameterCircularLog, true),
+		esent.SysParameterCreatorBool(config.SysParameterCreatePathIfNotExist, true),
+		esent.SysParameterCreatorBool(config.SysParameterCircularLog, true),
 
-		instance.SysParameterCreatoString(config.SysParameterSystemPath, systemPath),
-		instance.SysParameterCreatoString(config.SysParameterBaseName, baseName),
-		instance.SysParameterCreatoString(config.SysParameterLogFilePath, logsPath),
-		instance.SysParameterCreatoString(config.SysParameterTempPath, tempPath),
+		esent.SysParameterCreatoString(config.SysParameterSystemPath, systemPath),
+		esent.SysParameterCreatoString(config.SysParameterBaseName, baseName),
+		esent.SysParameterCreatoString(config.SysParameterLogFilePath, logsPath),
+		esent.SysParameterCreatoString(config.SysParameterTempPath, tempPath),
 
-		instance.SysParameterCreatoUInt32(config.SysParameterDbExtensionSize, 512),
+		esent.SysParameterCreatoUInt32(config.SysParameterDbExtensionSize, 512),
 	)
 	if err != nil {
 		assert.FailNow(t, "failed to configure esent instance", err.Error())
@@ -64,8 +71,31 @@ func Test_Create(t *testing.T) {
 		assert.FailNow(t, "failed to init esent instance", err.Error())
 	}
 
+	var session *esent.Session
+	session, err = inst.BeginSession()
+	if err != nil {
+		assert.FailNow(t, "failed to begin session", err.Error())
+	}
+	defer func() {
+		if e := session.EndSession(); e != nil {
+			assert.Fail(t, "failed to end session", e.Error())
+		}
+	}()
+
+	var database *esent.Database
+	database, err = session.CreateDatabase(databaseFilePath, esent.DbDefault)
+	if err != nil {
+		assert.FailNow(t, "failed to create database", err.Error())
+	}
+	defer func() {
+		if e := database.CloseDatabase(); e != nil {
+			assert.Fail(t, "failed to close database", e.Error())
+		}
+	}()
+
 	assert.DirExists(t, systemPath, "system directory doesn't exist")
 	assert.DirExists(t, logsPath, "logs directory doesn't exist")
+	assert.DirExists(t, databaseDirPath, "database directory doesn't exist")
 	assert.NoDirExists(t, tempPath, "temp path was created")
 
 	assert.FileExists(t, logsPath+"\\"+baseName+".log", "log file doesn't exist")
@@ -73,4 +103,5 @@ func Test_Create(t *testing.T) {
 	assert.FileExists(t, logsPath+"\\"+baseName+"res00002.jrs", "journal file 2 doesn't exist")
 	assert.FileExists(t, logsPath+"\\"+baseName+"tmp.log", "temp log file doesn't exist")
 	assert.FileExists(t, systemPath+"\\"+baseName+".chk", "checkpoint file doesn't exist")
+	assert.FileExists(t, databaseFilePath, "database file doesn't exist")
 }
