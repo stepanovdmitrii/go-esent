@@ -78,5 +78,5 @@ func (i *Instance) BeginSession() (*Session, error) {
 		return nil, err
 	}
 
-	return &Session{handle: handle}, nil
+	return &Session{sesID: handle}, nil
 }

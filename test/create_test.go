@@ -93,6 +93,17 @@ func Test_Create(t *testing.T) {
 		}
 	}()
 
+	var table *esent.Table
+	table, err = database.CreateTable("test", esent.DefaultTablePages, esent.DefaultTableDensity)
+	if err != nil {
+		assert.FailNow(t, "failed to create table", err.Error())
+	}
+	defer func() {
+		if e := table.CloseTable(); e != nil {
+			assert.Fail(t, "failed to close table", e.Error())
+		}
+	}()
+
 	assert.DirExists(t, systemPath, "system directory doesn't exist")
 	assert.DirExists(t, logsPath, "logs directory doesn't exist")
 	assert.DirExists(t, databaseDirPath, "database directory doesn't exist")

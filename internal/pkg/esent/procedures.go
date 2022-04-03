@@ -14,6 +14,8 @@ var (
 	JetCreateDatabase      = mustGetProcAddress("JetCreateDatabase")
 	JetEndSession          = mustGetProcAddress("JetEndSession")
 	JetCloseDatabase       = mustGetProcAddress("JetCloseDatabase")
+	JetCreateTable         = mustGetProcAddress("JetCreateTable")
+	JetCloseTable          = mustGetProcAddress("JetCloseTable")
 )
 
 func mustGetProcAddress(proc string) uintptr {

@@ -10,7 +10,7 @@ import (
 
 // Session ...
 type Session struct {
-	handle uintptr
+	sesID uintptr
 }
 
 // CreateDatabase Creates and attaches a database file to be used with the ESE database engine
@@ -24,12 +24,12 @@ func (s *Session) CreateDatabase(filename string, flags CreateDatabaseFlag) (*Da
 		return nil, cErr
 	}
 	var handle uintptr
-	if err := esent.Syscall(esent.JetCreateDatabase, s.handle, uintptr(unsafe.Pointer(bytePtr)), Null, uintptr(unsafe.Pointer(&handle)), uintptr(flags)); err != nil {
+	if err := esent.Syscall(esent.JetCreateDatabase, s.sesID, uintptr(unsafe.Pointer(bytePtr)), Null, uintptr(unsafe.Pointer(&handle)), uintptr(flags)); err != nil {
 		return nil, err
 	}
 	return &Database{
-		sessionHandle:  s.handle,
-		databaseHandle: handle,
+		sesID: s.sesID,
+		dbID:  handle,
 	}, nil
 }
 
@@ -39,5 +39,5 @@ func (s *Session) EndSession() error {
 	if s == nil {
 		return fmt.Errorf("session is not initialized")
 	}
-	return esent.Syscall(esent.JetEndSession, s.handle)
+	return esent.Syscall(esent.JetEndSession, s.sesID)
 }
